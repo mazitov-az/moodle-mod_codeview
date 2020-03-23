@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.	If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Page module version information
@@ -43,7 +43,19 @@ $PAGE->set_url('/mod/codeview/view.php', ['id' => $cm->id]);
 $PAGE->set_title($course->shortname.': '.$codeview->name);
 $PAGE->set_heading($course->fullname);
 
-echo $OUTPUT->header();
-echo $OUTPUT->heading(format_string($codeview->name), 2);
+$PAGE->requires->jQuery();
 
-echo $OUTPUT->footer();
+$PAGE->requires->css('/mod/codeview/codemirror-5.52.2/lib/codemirror.css');
+$PAGE->requires->css('/mod/codeview/codemirror-5.52.2/theme/monokai.css');
+$PAGE->requires->css('/mod/codeview/codemirror-5.52.2/addon/fold/foldgutter.css');
+$PAGE->requires->css('/mod/codeview/codemirror-5.52.2/addon/dialog/dialog.css');
+
+$output = $PAGE->get_renderer('mod_codeview');
+$output->load();
+
+echo $output->header();
+echo $output->heading(format_string($codeview->name), 2);
+
+echo $output->display_codeview();
+
+echo $output->footer();
