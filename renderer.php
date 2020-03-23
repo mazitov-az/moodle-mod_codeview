@@ -32,8 +32,11 @@ class mod_codeview_renderer extends plugin_renderer_base {
 
 	}
 
+	// TODO add get file
 	public function display_codeview(){
 		# code...
+		global $DB;
+		echo $DB->get_field('codeview', 'intro', ['id' => $this->page->cm->instance]);
 		if ( has_capability('mod/codeview:addinstance', $this->page->context) ){
 			// teacher
 			return $this->teacher();
