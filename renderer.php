@@ -141,7 +141,8 @@ class mod_codeview_renderer extends plugin_renderer_base {
 		$_HTML = html_writer::link($this->page->url, get_string('back'), ['class' => 'btn']).'<br><br>';
 		$_HTML .= $this->get_user($userid).'<br><br>';
 		$date = $DB->get_record('codeview_code', ['codeviewid' => $this->page->cm->instance, 'userid' => $userid]);
-		$_HTML .= '<pre>'.print_r($date->code, 1).'</pre>';
+		// $_HTML .= '<pre>'.print_r($date->code, 1).'</pre>';
+		$_HTML .= $this->codemirror($date->code);
 		return $_HTML;
 	}
 }
