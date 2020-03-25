@@ -56,6 +56,7 @@ $output->load();
 echo $output->header();
 echo $output->heading(format_string($codeview->name), 2);
 
+echo $output->intro();
 echo $output->display_codeview();
 
 echo $output->footer();

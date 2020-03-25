@@ -32,11 +32,15 @@ class mod_codeview_renderer extends plugin_renderer_base {
 
 	}
 
+	public function intro(){
+		# code...
+		global $DB;
+		return $DB->get_field('codeview', 'intro', ['id' => $this->page->cm->instance]);
+	}
+
 	// TODO add get file
 	public function display_codeview(){
 		# code...
-		global $DB;
-		echo $DB->get_field('codeview', 'intro', ['id' => $this->page->cm->instance]);
 		if ( has_capability('mod/codeview:addinstance', $this->page->context) ){
 			// teacher
 			return $this->teacher();
@@ -66,8 +70,12 @@ class mod_codeview_renderer extends plugin_renderer_base {
 		return $this->codemirror($user_code);
 	}
 
-	public function codemirror($code){
+	public function codemirror($code, array $option = []){
 		# code...
+		$attr = [
+			'id' => 'code',
+			'name' => 'code'
+		] + $option;
 		return '
 			<script src="./codemirror-5.52.2/lib/codemirror.js"></script>
 			<script src="./codemirror-5.52.2/addon/search/searchcursor.js"></script>
@@ -89,8 +97,8 @@ class mod_codeview_renderer extends plugin_renderer_base {
 
 			<script src="./codemirror-5.52.2/keymap/sublime.js"></script>
 
-			<textarea id="code" name="code">'.$code.'</textarea>
-		';
+		'.html_writer::tag('textarea', $code, $attr);
+			// <textarea id="code" name="code">'.$code.'</textarea>
 	}
 
 	// -----------------------------------
@@ -142,7 +150,7 @@ class mod_codeview_renderer extends plugin_renderer_base {
 		$_HTML .= $this->get_user($userid).'<br><br>';
 		$date = $DB->get_record('codeview_code', ['codeviewid' => $this->page->cm->instance, 'userid' => $userid]);
 		// $_HTML .= '<pre>'.print_r($date->code, 1).'</pre>';
-		$_HTML .= $this->codemirror($date->code);
+		$_HTML .= $this->codemirror($date->code, ['userid' => $userid]);
 		return $_HTML;
 	}
 }
