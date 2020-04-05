@@ -1,13 +1,12 @@
 define(['jquery', 'core/notification', 'core/ajax'], function ($, Notification, ajax) {
-	//возвращаем объект, методы которых будут вызываться в PHP  $PAGE->requires->js_call_amd()
-	//пример
-	//$PAGE->requires->js_call_amd('local_example/ajax', 'test_ajax', [$argument]);
+
 	return {
-		//method
+
 		save: function(instance) {
 			// body...
+			var event = this;
 			$( document ).ready(function() {
-				console.log( "ready!" );
+				//----------------------------------------------------------
 				var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 					lineNumbers: true,
 					matchBrackets: true,
@@ -19,9 +18,9 @@ define(['jquery', 'core/notification', 'core/ajax'], function ($, Notification, 
 					indentUnit: 4,
 					indentWithTabs: true
 				});
+				//----------------------------------------------------------
 				editor.on("change", function(cm, change) {
 					// body...
-					console.log( cm.getValue());
 					var promises = ajax.call([{
 						methodname: 'mod_codeview_save_code',
 						args: { codeviewid: instance, code: cm.getValue() },
@@ -34,20 +33,50 @@ define(['jquery', 'core/notification', 'core/ajax'], function ($, Notification, 
 						console.log( response[0].content);
 					});
 				});
-			});
-			/*$('.test_ajax').click(function() {
-				console.log('test_ajax');
-				// body...
+				//----------------------------------------------------------
+				$('#submit_for_verification').click(function() {
+					// body...
+					$('#submit_for_verification').slideUp();
+					$('#control_panel_on_check').slideDown();
 
-				promises[0].done(function(response) {
-					console.log( response );
-					console.log( response[0] );
-					console.log( response[0].content);
-					$('#ajax_summ').val(response[0].content);
-				}).fail(function(ex) {
-					// do something with the exception
+					$('#codemirror_pre').html( event.escapeHtml( editor.getValue() ) );
+					$('.CodeMirror').slideUp();
+					$('#codemirror_pre').slideDown();
+
+					var verification = ajax.call([{
+						methodname: 'mod_codeview_submit_for_verification',
+						args: { codeviewid: instance },
+						fail: Notification.exception
+					}]);
+
+					verification[0].done(function(response) {
+						console.log( response );
+						console.log( response[0] );
+						console.log( response[0].content);
+					});
 				});
-			});*/
+				//----------------------------------------------------------
+			});
+		},
+
+		escapeHtml: function(text) {
+			let map = {
+				'&': '&amp;',
+				'<': '&lt;',
+				'>': '&gt;',
+				'"': '&quot;',
+				"'": '&#039;'
+			};
+			return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+		},
+
+		teacher_check: function(instance) {
+			$( document ).ready(function() {
+				// $('#submit_for_verification').click(function() {
+				// 	// body...
+				// 	console.log(1);
+				// });
+			});
 		}
 	}
 });

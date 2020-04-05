@@ -53,30 +53,58 @@ class mod_codeview_renderer extends plugin_renderer_base {
 	public function student(){
 		# code...
 		global $DB, $USER;
-		$code = $DB->get_record('codeview_code', ['codeviewid' => $this->page->cm->instance, 'userid' => $USER->id], 'id, code, date');
+		$code = $DB->get_record('codeview_code', ['codeviewid' => $this->page->cm->instance, 'userid' => $USER->id], 'id, code, date, status');
 		if ( !$code ) {
 			# code...
 			$insert = [
 				'codeviewid' => $this->page->cm->instance,
 				'userid' => $USER->id,
 				'code' => '<?php',
-				'date' => $_SERVER['REQUEST_TIME']
+				'date' => $_SERVER['REQUEST_TIME'],
+				'status' => 0
 			];
 			$DB->insert_record('codeview_code', $insert);
 			$user_code = $insert['code'];
+			$status = 0;
 		} else {
 			$user_code = $code->code;
+			$status = $code->status;
 		}
-		return $this->codemirror($user_code);
+		return $this->control_panel($status).'<hr>'.$this->codemirror($user_code, [], $status);
 	}
 
-	public function codemirror($code, array $option = []){
+	public function control_panel($status = 0){
 		# code...
+		$this->page->requires->js_call_amd('mod_codeview/ajax', 'teacher_check', [$this->page->cm->instance]);
+		$none = ['style' => 'display: none;'];
+		$_HTML = '';
+		$_HTML .= html_writer::start_div('', ['id' => 'teacher_check']);
+			$_HTML .= html_writer::link('#', 'Подать на проверку', (['id' => 'submit_for_verification', 'class' => 'btn'] + ($status == 0 ? [] : $none)) );
+			$_HTML .= html_writer::div('На проверке', 'alert alert-info', (['id' => 'control_panel_on_check'] + ($status == 1 ? [] : $none)) );
+			$_HTML .= html_writer::div('Зачтено', 'alert alert-success', ($status == 2 ? [] : $none));
+		$_HTML .= html_writer::end_div();
+		return $_HTML;
+	}
+
+	public function codemirror($code, array $option = [], $status){
+		# code...
+		// temp
+		if ( $status > 0 ) {
+			# code...
+			$codemirror_box_attr = ['style' => 'display: none;'];
+			$codemirror_pre_attr = ['id' => 'codemirror_pre'];
+			// return html_writer::tag('pre', $code, ['id' => 'codemirror_pre']);
+		} else {
+			$codemirror_box_attr = [];
+			$codemirror_pre_attr = ['id' => 'codemirror_pre', 'style' => 'display: none;'];
+		}
+		
 		$attr = [
 			'id' => 'code',
 			'name' => 'code'
 		] + $option;
-		return '
+
+		$script = '
 			<script src="./codemirror-5.52.2/lib/codemirror.js"></script>
 			<script src="./codemirror-5.52.2/addon/search/searchcursor.js"></script>
 			<script src="./codemirror-5.52.2/addon/search/search.js"></script>
@@ -96,9 +124,13 @@ class mod_codeview_renderer extends plugin_renderer_base {
 			<script src="./codemirror-5.52.2/mode/php/php.js"></script>
 
 			<script src="./codemirror-5.52.2/keymap/sublime.js"></script>
-
-		'.html_writer::tag('textarea', $code, $attr);
-			// <textarea id="code" name="code">'.$code.'</textarea>
+		';
+		$HTML = html_writer::div(
+			html_writer::tag('textarea', $code, $attr).$script,
+			'codemirror_box',
+			$codemirror_box_attr
+		).html_writer::tag('pre', $code, $codemirror_pre_attr);
+		return $HTML;
 	}
 
 	// -----------------------------------
