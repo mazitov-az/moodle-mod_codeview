@@ -92,4 +92,59 @@ class external extends \external_api {
 			]
 		];
 	}
+
+
+	/**
+	 * Expose to AJAX
+	 * @return boolean
+	 */
+	public static function submit_for_verification_is_allowed_from_ajax() {
+		return true;
+	}
+
+	/**
+	 * Wrap the core function submit_for_verification.
+	 *
+	 * @return external_function_parameters
+	 */
+	public static function submit_for_verification_parameters() {
+		return new external_function_parameters([
+			'codeviewid' => new external_value(PARAM_INT, 'code')
+		]);
+	}
+	
+	/**
+	 * Wrap the core function submit_for_verification.
+	 *
+	 * @return external_description
+	 */
+	public static function submit_for_verification_returns() {
+		return new external_multiple_structure(
+			new external_single_structure([
+				'content'	=> new external_value(PARAM_RAW, 'content text')
+			])
+		);
+	}
+
+	public static function submit_for_verification($codeviewid){
+		# code...
+		global $DB, $USER;
+		$id = $DB->get_field('codeview_code', 'id', ['codeviewid' => $codeviewid, 'userid' => $USER->id]);
+		if (!$id) {
+			# code...
+			// TODO error
+			return [
+				[
+					'content' => 'fail'
+				]
+			];
+		}
+
+		$DB->update_record('codeview_code', ['id' => $id, 'date' => $_SERVER['REQUEST_TIME'], 'status' => 1]);
+		return [
+			[
+				'content' => 'submit_for_verification'
+			]
+		];
+	}
 }

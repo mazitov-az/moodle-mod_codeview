@@ -32,5 +32,15 @@ $functions = [
 		'type'			=> 'read',
 		'ajax'			=> true,
 		'loginrequired'	=> true,
-	]
+	],
+
+	'mod_codeview_submit_for_verification' => [
+		'classpath'		=> '/mod/codeview/classes/external.php',
+		'classname'		=> 'mod_codeview\external',
+		'methodname'	=> 'submit_for_verification',
+		'description'	=> '',
+		'type'			=> 'read',
+		'ajax'			=> true,
+		'loginrequired'	=> true,
+	],
 ];
